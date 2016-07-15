@@ -1,45 +1,45 @@
 /******************************************************************
-		Ì°Ê³Éß Preview
-		´Ë°æ±¾Ì°³ÔÉßÓÃÉßµÄ·½¿éÊÇ¼¯ºÏÓÃµÄÊÇÊı×é
-		ÉßÒÆ¶¯ÊÇÒÔSleep()×è¶Ï½ø³ÌÊµÏÖµÄ
-		¹ÊÉßÒÆ¶¯¿´ËÆ½ÏÎª¿¨¶Ù£¬ÇÒÊı×é²åÈëÊı¾İĞ§ÂÊ½ÏµÍ£¬
-		¹Ê²Ù×÷ÌåÑéÊ®·ÖÒ»°ã
+		è´ªé£Ÿè›‡ Preview
+		æ­¤ç‰ˆæœ¬è´ªåƒè›‡ç”¨è›‡çš„æ–¹å—æ˜¯é›†åˆç”¨çš„æ˜¯æ•°ç»„
+		è›‡ç§»åŠ¨æ˜¯ä»¥Sleep()é˜»æ–­è¿›ç¨‹å®ç°çš„
+		æ•…è›‡ç§»åŠ¨çœ‹ä¼¼è¾ƒä¸ºå¡é¡¿ï¼Œä¸”æ•°ç»„æ’å…¥æ•°æ®æ•ˆç‡è¾ƒä½ï¼Œ
+		æ•…æ“ä½œä½“éªŒååˆ†ä¸€èˆ¬
 *******************************************************************/
 #include<windows.h>
 #include <time.h>
 
 #pragma comment(lib,"winmm.lib")
 
-#define LENGTH 40					//ÓÎÏ·³¡µØµÄ¿í
-#define WIDTH 10					//×é³ÉÉßµÄµÄÕı·½ĞÎµÄ±ß³¤
-#define RANGE 50					//ÓÎÏ·³¡µØÓë¿Í»§È¥Ö®¼ä¼ä¸ô
-#define SNAKE_COLOR RGB(255,0,0)	  //ÉßµÄÑÕÉ«
-#define BK_COLOR	RGB(204,232,207)  //´°Ìå±³¾°É«
+#define LENGTH 40					//æ¸¸æˆåœºåœ°çš„å®½
+#define WIDTH 10					//ç»„æˆè›‡çš„çš„æ­£æ–¹å½¢çš„è¾¹é•¿
+#define RANGE 50					//æ¸¸æˆåœºåœ°ä¸å®¢æˆ·å»ä¹‹é—´é—´éš”
+#define SNAKE_COLOR RGB(255,0,0)	  //è›‡çš„é¢œè‰²
+#define BK_COLOR	RGB(204,232,207)  //çª—ä½“èƒŒæ™¯è‰²
 #define NO_SNAKE 0
 #define HAS_SNAKE 1
 #define STEP 2
-#define MAKECOOR(x) (x)*WIDTH		//°ÑflagsÊı×éµÄÏÂ±êÓ³ÉäÎª×ø±ê
+#define MAKECOOR(x) (x)*WIDTH		//æŠŠflagsæ•°ç»„çš„ä¸‹æ ‡æ˜ å°„ä¸ºåæ ‡
 
 typedef struct
 {
 	int x;
 	int y;
 	int flag;
-} GRID;//ÉßµÄ½á¹¹
+} GRID;//è›‡çš„ç»“æ„
 
 LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);
-void MakePartSnake(int,int,int,GRID *);	//ÎªÉßÉíÔö¼Ó»òÉèÖÃÒ»¸ö·½¿é
-void MoveSnake(HWND);				//ÒÆ¶¯Éß
-void MakeFood(GRID *food);			//ÖÆÔìËæ»ú·½¿é
-void initializer();				//³õÊ¼»¯ÓÎÏ·
+void MakePartSnake(int,int,int,GRID *);	//ä¸ºè›‡èº«å¢åŠ æˆ–è®¾ç½®ä¸€ä¸ªæ–¹å—
+void MoveSnake(HWND);				//ç§»åŠ¨è›‡
+void MakeFood(GRID *food);			//åˆ¶é€ éšæœºæ–¹å—
+void initializer();				//åˆå§‹åŒ–æ¸¸æˆ
 void Manager();
 
 TCHAR szAppName[] = TEXT("Gluttony Snake");
-int flags[LENGTH][LENGTH];	//ÓÎÏ·ÇøÓòËùÓĞ·½¿éµÄ×´Ì¬±ê¼Ç
-RECT playground;		//ÓÎÏ·³¡µØ
-GRID *snake = NULL;	//ÉßËùÔÚÎ»ÖÃÊı×é
-GRID *food = NULL;	//Ê³Îï¶ÔÏó
-static int MAX_LENGTH = 0;//Ä¬ÈÏÉß·ÖÅäµÄ×î´ó³¤¶È£¨¿É±äµÄ£©
+int flags[LENGTH][LENGTH];	//æ¸¸æˆåŒºåŸŸæ‰€æœ‰æ–¹å—çš„çŠ¶æ€æ ‡è®°
+RECT playground;		//æ¸¸æˆåœºåœ°
+GRID *snake = NULL;	//è›‡æ‰€åœ¨ä½ç½®æ•°ç»„
+GRID *food = NULL;	//é£Ÿç‰©å¯¹è±¡
+static int MAX_LENGTH = 0;//é»˜è®¤è›‡åˆ†é…çš„æœ€å¤§é•¿åº¦ï¼ˆå¯å˜çš„ï¼‰
 int snake_len = 0;
 int direct = 0;
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -71,15 +71,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		break;
 	}
 	hwnd = CreateWindow(szAppName,
-						TEXT("Gluttony Snake Preview V1.0.1"),
-						WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MINIMIZEBOX ^ WS_MAXIMIZEBOX,
-						CW_USEDEFAULT,
-						CW_USEDEFAULT,
-						CW_USEDEFAULT,
-						CW_USEDEFAULT,
-						NULL,NULL,
-						hInstance,
-						NULL);
+			TEXT("Gluttony Snake Preview V1.0.1"),
+			WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MINIMIZEBOX ^ WS_MAXIMIZEBOX,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			NULL,NULL,
+			hInstance,
+			NULL);
 
 	ShowWindow(hwnd,SW_NORMAL);
 	UpdateWindow(hwnd);
@@ -111,9 +111,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 		return 0;
 
 	case WM_CREATE:
-		//PlaySound(TEXT("HG.wav"),NULL ,SND_ASYNC | SND_LOOP);//²¥·ÅÓÎÏ·ÒôÀÖ£»
+		//PlaySound(TEXT("HG.wav"),NULL ,SND_ASYNC | SND_LOOP);//æ’­æ”¾æ¸¸æˆéŸ³ä¹ï¼›
 		initializer();
-		MoveWindow(hwnd,RANGE * 2,RANGE * 2,WIDTH * LENGTH + RANGE * 3,WIDTH * LENGTH + RANGE * 3,TRUE);
+			MoveWindow(hwnd,
+			RANGE * 2,
+			RANGE * 2,
+			WIDTH * LENGTH + RANGE * 3,
+			WIDTH * LENGTH + RANGE * 3,
+			TRUE);
 		return 0;
 	case WM_KEYDOWN:
 		switch(wParam)
@@ -148,7 +153,11 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 		SetViewportOrgEx(hdc,RANGE/2,RANGE,NULL);
 		hBrush = CreateSolidBrush(BK_COLOR);
 		SelectObject(hdc,hBrush);
-		Rectangle(hdc,playground.left,playground.top,playground.right,playground.bottom);
+		Rectangle(hdc,
+			playground.left,
+			playground.top,
+			playground.right,
+			playground.bottom);
 		DeleteObject(hBrush);
 		hBrush = CreateSolidBrush(SNAKE_COLOR);
 		SelectObject(hdc,hBrush);
@@ -158,7 +167,11 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 			{
 				if(flags[i][j] == HAS_SNAKE)
 				{
-					Rectangle(hdc,MAKECOOR(i),MAKECOOR(j),MAKECOOR(i+1),MAKECOOR(j+1));
+					Rectangle(hdc,
+						MAKECOOR(i),
+						MAKECOOR(j),
+						MAKECOOR(i+1),
+						MAKECOOR(j+1));
 				}
 			}
 		}
@@ -167,24 +180,24 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 	}
 	return DefWindowProc(hwnd,message,wParam,lParam);
 }
-//////////////////////////³õÊ¼»¯ÓÎÏ·¸÷¸ö²ÎÊı////////////////////////////////////////////////////////////
+//åˆå§‹åŒ–æ¸¸æˆå„ä¸ªå‚æ•°
 void initializer()
 {
 	if(snake != NULL)
 		free(snake);
 	if(food != NULL)
 		free(food);
-	snake_len = 3;		//ÉßµÄ³õÊ¼³¤¶ÈÎª3
-	direct = VK_RIGHT;	//ÉßµÄ³õÊ¼·½ÏòÎªÏòÓÒ
-	MAX_LENGTH = 100;	//ÉßÄ¬ÈÏ×î³õ·ÖÅä×î´ó³¤¶ÈÎª20
-	food = (GRID *)calloc(1,sizeof(GRID));//·ÖÅä´¢´æfoodµÄÄÚ´æ
-	snake = (GRID *)calloc(MAX_LENGTH,sizeof(GRID));//·ÖÅä´¢´æÉßµÄÄÚ´æ
-	/*************³õÊ¼»¯ÓÎÏ·³¡µØ*******************/
+	snake_len = 3;		//è›‡çš„åˆå§‹é•¿åº¦ä¸º3
+	direct = VK_RIGHT;	//è›‡çš„åˆå§‹æ–¹å‘ä¸ºå‘å³
+	MAX_LENGTH = 100;	//è›‡é»˜è®¤æœ€åˆåˆ†é…æœ€å¤§é•¿åº¦ä¸º20
+	food = (GRID *)calloc(1,sizeof(GRID));//åˆ†é…å‚¨å­˜foodçš„å†…å­˜
+	snake = (GRID *)calloc(MAX_LENGTH,sizeof(GRID));//åˆ†é…å‚¨å­˜è›‡çš„å†…å­˜
+	/*************åˆå§‹åŒ–æ¸¸æˆåœºåœ°*******************/
 	playground.left = 0;
 	playground.top = 0;
 	playground.right = WIDTH * LENGTH;
 	playground.bottom = WIDTH * LENGTH;
-	/**************³õÊ¼»¯ÓÎÏ·³¡µØ********************/
+	/**************åˆå§‹åŒ–æ¸¸æˆåœºåœ°********************/
 
 	for(int i = 0 ;i < LENGTH;++i)
 	{
@@ -196,8 +209,8 @@ void initializer()
 	for(int i = 0; i != snake_len;++i)
 	{
 		MakePartSnake(LENGTH / 2 + 2 - i,LENGTH / 2,HAS_SNAKE,(snake + i));
-	}///³õÊ¼»¯Éß
-	MakeFood(food);///²úÉúfood
+	}///åˆå§‹åŒ–è›‡
+	MakeFood(food);///äº§ç”Ÿfood
 }
 
 void MakePartSnake(int x,int y,int flag,GRID * snake)
@@ -206,15 +219,15 @@ void MakePartSnake(int x,int y,int flag,GRID * snake)
 	snake->y = y;
 	snake->flag = flag;
 }
-////////////////////////////////////////////////////////////////////////////////
 
 
 
-//////////////////¿ØÖÆÉßµÄÒÆ¶¯///////////////////////
+//æ§åˆ¶è›‡çš„ç§»åŠ¨
 void MoveSnake(HWND hwnd)
 {
 	Manager();
-	flags[(snake + snake_len - 1)->x][(snake + snake_len - 1)->y] = NO_SNAKE;//°ÑÉßµÄÎ²²¿È¥³ı£¨±íÏÖÎªÉßÒÆ¶¯Ò»¸ñ£©
+	//æŠŠè›‡çš„å°¾éƒ¨å»é™¤ï¼ˆè¡¨ç°ä¸ºè›‡ç§»åŠ¨ä¸€æ ¼ï¼‰
+	flags[(snake + snake_len - 1)->x][(snake + snake_len - 1)->y] = NO_SNAKE;
 
 	for(int i = snake_len - 1; i > 0;--i)
 	{
@@ -240,9 +253,8 @@ void MoveSnake(HWND hwnd)
 	InvalidateRect(hwnd,NULL,FALSE);
 	Sleep(200);
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////Í¨¹ıËæ»úÉú³Éfood
+//é€šè¿‡éšæœºç”Ÿæˆfood
 void MakeFood(GRID *food)
 {
 	srand((unsigned) time(NULL));
@@ -251,23 +263,22 @@ void MakeFood(GRID *food)
 	food->flag = HAS_SNAKE;
 	flags[food->x][food->y] = food->flag;
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////ÓÎÏ·¹æÔòµÄÓ³Éä¼°ÄÚ´æµÄ´¦Àí///////////////////////////////////////////////////
+//æ¸¸æˆè§„åˆ™çš„æ˜ å°„åŠå†…å­˜çš„å¤„ç†
 void Manager()
 {
 	if(snake_len >= MAX_LENGTH - 2)
 	{
 		MAX_LENGTH += STEP;
 		snake = (GRID *)realloc(snake,MAX_LENGTH * sizeof(GRID));
-	}//ÈôÉßµÄ³¤¶ÈÊı×ésnake½«³¬¹ıËù·ÖÅäµÄÄÚ´æ¾ÍÔÙ´ÎÀ©³ä·ÖÅä
+	}//è‹¥è›‡çš„é•¿åº¦æ•°ç»„snakeå°†è¶…è¿‡æ‰€åˆ†é…çš„å†…å­˜å°±å†æ¬¡æ‰©å……åˆ†é…
 
 	if(snake->x < 0 || snake->x >= LENGTH || snake->y < 0 || snake->y >= LENGTH)
 	{
 		MessageBox(NULL,TEXT("Game Over!!"),szAppName,0);
 		initializer();
 		return;
-	}///ÅĞ¶ÏÉßÊÇ·ñÅöµ½±ß½ç
+	}///åˆ¤æ–­è›‡æ˜¯å¦ç¢°åˆ°è¾¹ç•Œ
 
 	for(int i = 4;i < snake_len;++i)
 	{
@@ -277,7 +288,7 @@ void Manager()
 			initializer();
 			return;
 		}
-	}////ÅĞ¶ÏÉßÊÇ·ñÅöµ½×ÔÉí
+	}////åˆ¤æ–­è›‡æ˜¯å¦ç¢°åˆ°è‡ªèº«
 
 	if(food->x == snake->x && food->y == snake->y)
 	{
@@ -289,6 +300,5 @@ void Manager()
 					);
 		++snake_len;
 		MakeFood(food);
-	}///ÅĞ¶ÏÉßÊÇ·ñ³Ôµ½food
+	}///åˆ¤æ–­è›‡æ˜¯å¦åƒåˆ°food
 }
-////////////////////////////////////////////////////////////////////////////////
